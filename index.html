@@ -384,6 +384,11 @@
   .tg-bieu-do { width: 100%; display: flex; flex-direction: column; gap: 8px; }
   .tg-the { background: #fff; border-radius: 14px; padding: 8px 10px; text-align: left; }
   .tg-the-dau { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.95rem; }
+  /* Nhãn Cao / Vừa / Thấp cạnh số của tháng đang xem */
+  .tg-muc { display: inline-block; margin-left: 6px; padding: 1px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 800; }
+  .tg-muc.muc-thap { background: #bde0fe; color: #1d4e89; }
+  .tg-muc.muc-vua { background: #ffe066; color: #7a5b00; }
+  .tg-muc.muc-cao { background: #ffb4a2; color: #8a2b0e; }
   .tg-the svg { display: block; width: 100%; height: 48px; margin-top: 4px; }
   /* ---------- KHÁM PHÁ THEO THÁNG ---------- */
   #man-th-chon, #man-th { gap: 10px; }
@@ -1272,6 +1277,7 @@ const CHU = {
     tg_chon_goi_y: "Chọn một trong 8 nơi để nghe số liệu NASA trôi qua hơn 20 năm",
     tg_goi_y: "Kéo thanh thời gian để xem số liệu NASA đổi theo từng tháng, hơn 20 năm qua.",
     tg_thang: "Tháng {so}", tg_phat: "▶ Phát", tg_tam_dung: "⏸ Tạm dừng", tg_tat: "🔇 Tắt tiếng", tg_bat: "🔊 Bật tiếng",
+    tg_muc: { thap: "Thấp", vua: "Vừa", cao: "Cao" },
     tg_toc: "Tốc độ", tg_toc_nhanh: "Nhanh", tg_toc_vua: "Vừa", tg_toc_cham: "Chậm",
     tg_meo: "💡 Bạn nghe thử nhé! Đàn sôi động là mặt đất xanh hơn. Dế kêu nhanh là trời nóng. Có sấm là mưa nhiều. Gió vù vù là gió mạnh.",
     tg_ndvi: "🌿 Phủ xanh (NDVI)", tg_nhiet: "🌡️ Nhiệt độ", tg_mua: "🌧️ Lượng mưa", tg_gio: "🍃 Gió",
@@ -1482,6 +1488,7 @@ const CHU = {
     tg_chon_goi_y: "Pick one of 8 places to hear 20+ years of NASA data go by",
     tg_goi_y: "Drag the time bar to see NASA data change month by month, over 20 years.",
     tg_thang: "Month {so}", tg_phat: "▶ Play", tg_tam_dung: "⏸ Pause", tg_tat: "🔇 Mute", tg_bat: "🔊 Unmute",
+    tg_muc: { thap: "Low", vua: "Medium", cao: "High" },
     tg_toc: "Speed", tg_toc_nhanh: "Fast", tg_toc_vua: "Medium", tg_toc_cham: "Slow",
     tg_meo: "💡 Have a listen! A lively piano means greener land. Fast crickets mean hot weather. Thunder means lots of rain. Whooshing means strong wind.",
     tg_ndvi: "🌿 Greenness (NDVI)", tg_nhiet: "🌡️ Temperature", tg_mua: "🌧️ Rainfall", tg_gio: "🍃 Wind",
@@ -2675,7 +2682,7 @@ function veBieuDoTG() {
     }).join("") : "";
     const the = document.createElement("div");
     the.className = "tg-the";
-    the.innerHTML = '<div class="tg-the-dau"><span>' + T(l.ten) + '</span><span id="tg-so-' + l.ma + '"></span></div>' +
+    the.innerHTML = '<div class="tg-the-dau"><span>' + T(l.ten) + '</span><span><span id="tg-so-' + l.ma + '"></span><span class="tg-muc" id="tg-muc-' + l.ma + '"></span></span></div>' +
       '<svg viewBox="0 0 ' + R + " " + C + '" preserveAspectRatio="none" aria-hidden="true">' +
       '<polyline points="' + diem + '" fill="none" stroke="' + l.mau + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' + uoc +
       '<line class="tg-vach" x1="0" x2="0" y1="0" y2="' + C + '" stroke="#264653" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
@@ -2692,7 +2699,19 @@ function datThangTG(i) {
   document.querySelectorAll("#tg-bieu-do .tg-vach").forEach(function (v) { v.setAttribute("x1", x); v.setAttribute("x2", x); });
   TG_LOAI.forEach(function (l) {
     document.getElementById("tg-so-" + l.ma).textContent = l.donVi(tgNoi[l.ma][i]);
+    const muc = mucTG(l.ma, tgNoi[l.ma][i]);
+    const nhan = document.getElementById("tg-muc-" + l.ma);
+    nhan.textContent = T("tg_muc")[muc];
+    nhan.className = "tg-muc muc-" + muc;
   });
+}
+
+// Cao / Vừa / Thấp: cùng ngưỡng với màn địa điểm (gió: m/s trung bình tháng)
+function mucTG(ma, v) {
+  if (ma === "N") return mucDo("ndvi", v);
+  if (ma === "T") return v < 15 ? "thap" : v < 24 ? "vua" : "cao";
+  if (ma === "P") return mucDo("mua", v);
+  return v < 2 ? "thap" : v < 4 ? "vua" : "cao";
 }
 
 // --- Âm thanh từng tháng ---
