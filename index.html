@@ -2412,8 +2412,32 @@ function phatPianoSoiDong(ctx, dich, batDau) {
     if (i % 8 === 6) notPiano(ctx, dich, hop[2] * 2, t, 0.35, 0.25); // nốt cao lấp lánh
   }
 }
+// Phủ xanh vừa: điệu valse nhẹ nhàng (bùm - tách - tách), có giai điệu hát được
+function phatPianoVua(ctx, dich, batDau) {
+  const HOP_AM = [ // Đô - La thứ - Fa - Son: [nốt trầm, 2 nốt đệm]
+    [130.8, 261.6, 329.6], [110.0, 261.6, 329.6], [87.3, 261.6, 349.2], [98.0, 246.9, 293.7]
+  ];
+  const GIAI_DIEU = [ // mỗi ô nhịp 3 nốt
+    [659.3, 784.0, 659.3], [523.3, 659.3, 880.0], [880.0, 784.0, 698.5], [587.3, 659.3, 784.0],
+    [659.3, 784.0, 1046.5], [880.0, 784.0, 659.3], [698.5, 587.3, 493.9]
+  ];
+  const nhip = 0.26; // vừa phải: không chậm như mức thấp, không nhanh như mức cao
+  for (let o = 0; o < GIAI_DIEU.length; o++) {
+    const hop = HOP_AM[o % 4];
+    for (let n = 0; n < 3; n++) {
+      const t = batDau + (o * 3 + n) * nhip;
+      notPiano(ctx, dich, GIAI_DIEU[o][n], t, n === 0 ? 0.62 : 0.5, 0.6);
+      if (n === 0) notPiano(ctx, dich, hop[0], t, 0.5, 0.7); // "bùm"
+      else notPiano(ctx, dich, hop[n], t, 0.22, 0.3);        // "tách"
+    }
+  }
+  // Kết bài: hợp âm Đô ngân dài
+  const ket = batDau + GIAI_DIEU.length * 3 * nhip;
+  [130.8, 261.6, 329.6, 392.0, 523.3].forEach(function (f, k) { notPiano(ctx, dich, f, ket + k * 0.03, k === 4 ? 0.6 : 0.4); });
+}
 function phatPiano(ctx, dich, muc, batDau) {
   if (muc === "cao") { phatPianoSoiDong(ctx, dich, batDau); return; }
+  if (muc === "vua") { phatPianoVua(ctx, dich, batDau); return; }
   const NOT = [261.6, 293.7, 329.6, 392.0, 440.0, 523.3, 587.3, 659.3]; // ngũ cung Đô
   const soNot = { thap: 5, vua: 9 }[muc];
   const cach = (THOI_LUONG - 1.5) / soNot;
