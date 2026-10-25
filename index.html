@@ -389,6 +389,7 @@
   .tg-muc.muc-thap { background: #bde0fe; color: #1d4e89; }
   .tg-muc.muc-vua { background: #ffe066; color: #7a5b00; }
   .tg-muc.muc-cao { background: #ffb4a2; color: #8a2b0e; }
+  .dt-nam { margin: 0; font-size: 1.6rem; font-weight: 800; color: #2d6a4f; }
   .tg-the svg { display: block; width: 100%; height: 48px; margin-top: 4px; }
   /* ---------- KHÁM PHÁ THEO THÁNG ---------- */
   #man-th-chon, #man-th { gap: 10px; }
@@ -826,6 +827,7 @@
     <h2 data-i18n="dt_tieude">📅 Đoán tháng</h2>
     <label class="tg-toc-hang"><span data-i18n="dt_noi">Nơi:</span> <select id="dt-noi"></select></label>
     <p class="dt-luot" id="dt-luot"></p>
+    <p class="dt-nam" id="dt-nam"></p>
     <p class="tt-goi-y" data-i18n="dt_goi_y">Nghe tiếng của một tháng bí mật, rồi đoán đó là tháng mấy!</p>
     <button class="nut-ca-3 dt-nghe" id="dt-nghe" type="button" data-i18n="dt_nghe">🎧 Nghe tháng bí mật</button>
     <div class="dt-chon" id="dt-chon"></div>
@@ -833,7 +835,7 @@
     <button class="nut nut-chinh" id="dt-tiep" type="button" hidden data-i18n="dt_tiep">Lượt tiếp ➜</button>
     <div class="tt-diem" id="dt-diem"></div>
     <button class="nut nut-chinh" id="dt-lai" type="button" hidden data-i18n="dt_lai">🔄 Chơi lại</button>
-    <p class="nguon-bd" data-i18n="th_nguon">Nguồn: NASA POWER (nhiệt độ, mưa, gió) và NASA MODIS qua ORNL DAAC (NDVI), trung bình từng tháng 2006–2025.</p>
+    <p class="nguon-bd" data-i18n="dt_nguon">Nguồn: NASA POWER (nhiệt độ, mưa, gió) và NASA MODIS qua ORNL DAAC (NDVI), số liệu từng tháng của năm 2006–2025.</p>
   </section>
 
   <!-- MINIGAME 2: VẼ TRANH DỰ ĐOÁN — chọn nơi -->
@@ -1327,7 +1329,9 @@ const CHU = {
     ad_nguon: "Độ xanh (NDVI) trung bình từng năm 2006–2025 từ vệ tinh MODIS của NASA (qua ORNL DAAC). \"Thay đổi\" = trung bình 2023–2025 so với 2006–2008.",
     doc_ad: ["Đây là trò Ai thay đổi nhiều nhất.", "Bấm Nghe 20 năm ở mỗi nơi. Nốt đi lên là xanh lên, đi xuống là bớt xanh.", "Rồi chọn nơi thay đổi độ xanh nhiều hơn."],
     dt_tieude: "📅 Đoán tháng", dt_noi: "Nơi:", dt_luot: "Lượt {so}/{tong}",
-    dt_goi_y: "Nghe tiếng của một tháng bí mật, rồi đoán đó là tháng mấy!",
+    dt_goi_y: "Nghe tiếng của một tháng bí mật trong năm này, rồi đoán đó là tháng mấy!",
+    dt_nam: "📆 Năm {nam}",
+    dt_nguon: "Nguồn: NASA POWER (nhiệt độ, mưa, gió) và NASA MODIS qua ORNL DAAC (NDVI), số liệu từng tháng của năm 2006–2025.",
     dt_nghe: "🎧 Nghe tháng bí mật", dt_tiep: "Lượt tiếp ➜", dt_lai: "🔄 Chơi lại",
     dt_dung: "✅ Đúng rồi!", dt_sai: "❌ Chưa đúng, thử lượt sau nhé!",
     dt_giai_thich: "Tháng {thang}: nhiệt độ {nhiet} °C, mưa {mua} mm mỗi ngày.",
@@ -1538,7 +1542,9 @@ const CHU = {
     ad_nguon: "Yearly average greenness (NDVI) 2006–2025 from NASA's MODIS satellite (via ORNL DAAC). \"Change\" = 2023–2025 average compared with 2006–2008.",
     doc_ad: ["This is Who changed the most.", "Tap Hear 20 years for each place. Notes going up mean greener, going down mean less green.", "Then pick the place whose greenness changed more."],
     dt_tieude: "📅 Guess the month", dt_noi: "Place:", dt_luot: "Round {so}/{tong}",
-    dt_goi_y: "Listen to a secret month, then guess which month it is!",
+    dt_goi_y: "Listen to a secret month in this year, then guess which month it is!",
+    dt_nam: "📆 Year {nam}",
+    dt_nguon: "Sources: NASA POWER (temperature, rain, wind) and NASA MODIS via ORNL DAAC (NDVI), monthly data for each year 2006–2025.",
     dt_nghe: "🎧 Play the secret month", dt_tiep: "Next round ➜", dt_lai: "🔄 Play again",
     dt_dung: "✅ Correct!", dt_sai: "❌ Not quite, try the next round!",
     dt_giai_thich: "Month {thang}: {nhiet} °C, {mua} mm of rain per day.",
@@ -3272,6 +3278,7 @@ document.getElementById("ad-lai").addEventListener("click", batDauAD);
 // Nghe tiếng của 1 tháng bí mật (trung bình 2006–2025 của nơi đang chọn), chọn đúng tháng trong 3 đáp án.
 // Dùng lại bộ tiếng của màn thời gian và số trung bình tháng của "Khám phá theo tháng".
 const DT_SO_LUOT = 5;
+let dtGoc = null, dtNam = 2006; // nơi gốc (chuỗi 2006–2026) và năm của lượt này
 let dtNoi = null, dtLuot = 0, dtDung = 0, dtThang = 0, dtDapAn = [], dtHen = [], dtDaChon = false;
 
 function veChonNoiDT() {
@@ -3283,6 +3290,7 @@ function veChonNoiDT() {
 function batDauDT() {
   dungNgheDT();
   const n = TG_NOI.find(function (x) { return x.id === document.getElementById("dt-noi").value; }) || TG_NOI[4];
+  dtGoc = n;
   dtNoi = trungBinhThang(n);
   dtLuot = 0; dtDung = 0;
   document.getElementById("dt-diem").innerHTML = "";
@@ -3294,6 +3302,8 @@ function luotMoiDT() {
   dtLuot++;
   dtDaChon = false;
   dtThang = Math.floor(Math.random() * 12);
+  dtNam = 2006 + Math.floor(Math.random() * 20); // năm có đủ 12 tháng: 2006–2025
+  document.getElementById("dt-nam").textContent = T("dt_nam", { nam: dtNam });
   const khac = [];
   for (let m = 0; m < 12; m++) {
     const xa = Math.min(Math.abs(m - dtThang), 12 - Math.abs(m - dtThang));
@@ -3318,18 +3328,21 @@ function luotMoiDT() {
     hop.appendChild(o);
   });
 }
+function viTriDT(m) {
+  return (dtNam - +dtGoc.batDau.slice(0, 4)) * 12 + m - (+dtGoc.batDau.slice(5, 7) - 1);
+}
 function ngheDT() {
   dungNgheDT();
   dungDoc(); dungAmThanh();
   document.getElementById("dt-nghe").classList.add("dang-phat");
-  tgNoi = dtNoi; // bộ tiếng màn thời gian đọc số từ tgNoi
+  tgNoi = dtGoc; // bộ tiếng màn thời gian đọc số từ tgNoi
   batAmNenTG();
   const NHIP = 0.5, SO_NHIP = 8; // khoảng 4 giây
   for (let k = 0; k < SO_NHIP; k++) {
     dtHen.push(setTimeout(function () {
       if (!document.getElementById("man-dt").classList.contains("hien")) { dungNgheDT(); return; }
-      tgNoi = dtNoi;
-      phatThangTG(dtThang, NHIP);
+      tgNoi = dtGoc;
+      phatThangTG(viTriDT(dtThang), NHIP);
     }, k * NHIP * 1000));
   }
   dtHen.push(setTimeout(dungNgheDT, SO_NHIP * NHIP * 1000 + 300));
@@ -3342,7 +3355,7 @@ function dungNgheDT() {
 }
 // Câu giải thích: tháng đó nóng / lạnh, mưa bao nhiêu, có sấm không
 function giaiThichDT(m) {
-  const nhiet = dtNoi.T[m], mua = dtNoi.P[m];
+  const nhiet = dtGoc.T[viTriDT(m)], mua = dtGoc.P[viTriDT(m)];
   return T("dt_giai_thich", { thang: m + 1, nhiet: nhiet.toFixed(1), mua: mua.toFixed(1) }) +
     (nhiet < 5 ? " " + T("dt_de_im") : "") + (mua >= 8 ? " " + T("dt_co_sam") : "");
 }
@@ -4022,6 +4035,7 @@ function apDungNgonNgu() {
   }
   if (dtNoi && document.getElementById("man-dt").classList.contains("hien")) {
     document.getElementById("dt-luot").textContent = T("dt_luot", { so: dtLuot, tong: DT_SO_LUOT });
+    document.getElementById("dt-nam").textContent = T("dt_nam", { nam: dtNam });
     document.querySelectorAll("#dt-chon .th-o span:last-child").forEach(function (sp, k) { sp.textContent = T("tg_thang", { so: dtDapAn[k] + 1 }); });
   }
   if (thNoi && document.getElementById("man-th").classList.contains("hien")) { document.getElementById("th-ten").textContent = tenTG(thNoi); veOThang(); veSoThang(); }
