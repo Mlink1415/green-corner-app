@@ -472,6 +472,8 @@
   #man-mg-ds, #man-minigame, #man-tt-doan, #man-tt-ketqua { gap: 10px; }
   .tt-goi-y { margin: 0; font-size: 1rem; line-height: 1.4; }
   .tt-luoi { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+  .tt-o.vt-qua-cau { grid-column: 1 / -1; background: #d8f0ff; padding: 22px 12px; }
+  .tt-o.vt-qua-cau .tt-hinh { font-size: 64px; }
   .tt-o {
     position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
     min-height: 92px; justify-content: center; padding: 12px 8px; border-radius: 18px; cursor: pointer;
@@ -512,6 +514,9 @@
   .tt-diem:empty { display: none; }
   .tt-diem p { margin: 4px 0; }
   .tt-sao { font-size: 1.6rem; letter-spacing: 2px; }
+  /* Tổng sao cộng dồn mọi trò (giống game trước) */
+  .diem-hien-thi { margin: 0; padding: 6px 14px; border-radius: 999px; background: #fff3c4; color: #7a5b00; font-weight: 800; }
+  .tong-sao { margin: 6px auto 0; padding: 6px 14px; border-radius: 999px; background: #fff3c4; color: #7a5b00; font-weight: 800; display: inline-block; }
   .tt-bang { width: 100%; display: flex; flex-direction: column; gap: 6px; }
   .tt-hang {
     display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 8px;
@@ -767,6 +772,7 @@
   <section class="man" id="man-mg-ds">
     <button class="nut-quay-lai" data-ve="man-chao" type="button" data-i18n="ve">⬅ Về</button>
     <h2 data-i18n="mg_tieude">🎮 Minigame</h2>
+    <p class="diem-hien-thi" id="mg-tong-sao"></p>
     <p class="tt-goi-y" data-i18n="mg_chon">Chọn một trò để chơi nhé!</p>
     <div class="tt-luoi" id="mg-ds"></div>
   </section>
@@ -1331,6 +1337,8 @@ const CHU = {
     dt_tieude: "📅 Đoán tháng", dt_noi: "Nơi:", dt_luot: "Lượt {so}/{tong}",
     dt_goi_y: "Nghe tiếng của một tháng bí mật trong năm này, rồi đoán đó là tháng mấy!",
     dt_nam: "📆 Năm {nam}",
+    sao_tong: "🏆 {n} sao", sao_cong: "🏆 +{cong} sao · Tổng: {n} sao",
+    danh_hieu: [[20, "🏅 Chuyên Gia Xanh"], [10, "🌟 Nhà Khoa Học Nhí"], [3, "🌱 Người Khám Phá"]],
     dt_nguon: "Nguồn: NASA POWER (nhiệt độ, mưa, gió) và NASA MODIS qua ORNL DAAC (NDVI), số liệu từng tháng của năm 2006–2025.",
     dt_nghe: "🎧 Nghe tháng bí mật", dt_tiep: "Lượt tiếp ➜", dt_lai: "🔄 Chơi lại",
     dt_dung: "✅ Đúng rồi!", dt_sai: "❌ Chưa đúng, thử lượt sau nhé!",
@@ -1341,7 +1349,8 @@ const CHU = {
     dt_khen_3: "🌟 Giỏi lắm! Nhớ mẹo: dế nhanh là tháng nóng, có sấm là mùa mưa.",
     dt_khen_0: "🕵️ Gần đúng rồi! Nghe kỹ tiếng dế và tiếng sấm, chơi lại nhé.",
     doc_dt: ["Đây là trò Đoán tháng.", "Bấm Nghe tháng bí mật, rồi chọn tháng bạn đoán.", "Mẹo: dế kêu nhanh là tháng nóng, có sấm là mùa mưa, dế im là tháng lạnh."],
-    vt_tieude: "🎨 Vẽ tranh dự đoán", vt_chon_noi: "Chọn một nơi. Bạn tưởng tượng nơi đó trông thế nào?",
+    vt_tieude: "🎨 Vẽ tranh dự đoán", vt_chon_noi: "Chọn một nơi bất kỳ trên Trái Đất. Bạn tưởng tượng nơi đó trông thế nào?",
+    vt_qc_nut: "Chọn nơi trên quả cầu", vt_qc_goi_y: "Xoay Trái Đất, chạm vào một nước, rồi chọn nơi bạn muốn vẽ!",
     vt_ve_goi_y: "Bấm chọn thẻ bạn đoán. Tranh sẽ tự vẽ theo!",
     vt_hoi_xanh: "🌳 Nơi này có nhiều cây xanh không?", vt_xanh_1: "Rất ít cây", vt_xanh_2: "Vừa phải", vt_xanh_3: "Rậm rạp",
     vt_hoi_nhiet: "🌡️ Nhiệt độ trung bình thế nào?", vt_nhiet_1: "Lạnh", vt_nhiet_2: "Ôn hoà", vt_nhiet_3: "Nóng",
@@ -1544,6 +1553,8 @@ const CHU = {
     dt_tieude: "📅 Guess the month", dt_noi: "Place:", dt_luot: "Round {so}/{tong}",
     dt_goi_y: "Listen to a secret month in this year, then guess which month it is!",
     dt_nam: "📆 Year {nam}",
+    sao_tong: "🏆 {n} stars", sao_cong: "🏆 +{cong} stars · Total: {n} stars",
+    danh_hieu: [[20, "🏅 Green Expert"], [10, "🌟 Junior Scientist"], [3, "🌱 Explorer"]],
     dt_nguon: "Sources: NASA POWER (temperature, rain, wind) and NASA MODIS via ORNL DAAC (NDVI), monthly data for each year 2006–2025.",
     dt_nghe: "🎧 Play the secret month", dt_tiep: "Next round ➜", dt_lai: "🔄 Play again",
     dt_dung: "✅ Correct!", dt_sai: "❌ Not quite, try the next round!",
@@ -1554,7 +1565,8 @@ const CHU = {
     dt_khen_3: "🌟 Great job! Remember: fast crickets mean a hot month, thunder means the rainy season.",
     dt_khen_0: "🕵️ So close! Listen for the crickets and the thunder, then play again.",
     doc_dt: ["This is Guess the month.", "Tap Play the secret month, then pick the month you guess.", "Tip: fast crickets mean a hot month, thunder means the rainy season, quiet crickets mean a cold month."],
-    vt_tieude: "🎨 Prediction painting", vt_chon_noi: "Pick a place. What do you imagine it looks like?",
+    vt_tieude: "🎨 Prediction painting", vt_chon_noi: "Pick any place on Earth. What do you imagine it looks like?",
+    vt_qc_nut: "Pick a place on the globe", vt_qc_goi_y: "Spin the Earth, tap a country, then pick the place you want to paint!",
     vt_ve_goi_y: "Tap the cards you guess. The picture paints itself!",
     vt_hoi_xanh: "🌳 Are there lots of plants here?", vt_xanh_1: "Very few", vt_xanh_2: "Medium", vt_xanh_3: "Dense",
     vt_hoi_nhiet: "🌡️ What's the average temperature?", vt_nhiet_1: "Cold", vt_nhiet_2: "Mild", vt_nhiet_3: "Hot",
@@ -1920,7 +1932,7 @@ function ghimDiaCau() {
     return { hinh: qg.co, ten: tenNuoc(ma), lat: qg.lat, lon: qg.lon, mau: "#f4a261", bam: function () { moQuocGia(ma); } };
   }).concat(GHIM_LE.map(function (id) {
     const noi = timNoi(id);
-    return { hinh: noi.hinh, ten: tenNoi(noi), lat: noi.lat, lon: noi.lon, mau: "#52b788", bam: function () { moNoi(noi); } };
+    return { hinh: noi.hinh, ten: tenNoi(noi), lat: noi.lat, lon: noi.lon, mau: "#52b788", bam: function () { diToiNoi(noi); } };
   }));
   return ghimHienTai;
 }
@@ -1994,6 +2006,16 @@ diaCau.addEventListener("pointerup", function (e) {
 });
 diaCau.addEventListener("pointercancel", function () { keo = null; });
 
+// Quả cầu dùng cho trò chơi: chonNoiCho = việc làm với nơi vừa chọn (null = khám phá bình thường)
+let chonNoiCho = null;
+function diToiNoi(noi) { if (chonNoiCho) chonNoiCho(noi); else moNoi(noi); }
+function datCheDoQuaCau(veMan, khoaGoiY, xuLy) {
+  chonNoiCho = xuLy;
+  document.querySelector("#man-ban-do .nut-quay-lai").dataset.ve = veMan;
+  const goiY = document.querySelector("#man-ban-do .goi-y-bd");
+  goiY.dataset.i18n = khoaGoiY;
+  goiY.textContent = T(khoaGoiY);
+}
 function moBanDoTheGioi() {
   moMan("man-ban-do");
   nuocDangChon = null;
@@ -2018,7 +2040,7 @@ function moQuocGia(ma) {
   nuocDangChon = null;
   document.getElementById("ten-dang-chon").textContent = "";
   veDiaCau();
-  if (NOI_THEO_NUOC[ma]) { moNoi(NOI_THEO_NUOC[ma]); return; } // Nam Cực, Greenland: vào thẳng số NASA
+  if (NOI_THEO_NUOC[ma]) { diToiNoi(NOI_THEO_NUOC[ma]); return; } // Nam Cực, Greenland: vào thẳng số NASA
   quocGiaDangXem = ma;
   const nuoc = timNuoc(ma);
   const coSan = QUOC_GIA_CO_SAN[ma];
@@ -2042,7 +2064,7 @@ function moQuocGia(ma) {
     datGhim(hop, khung, phongTo, "ghim-dao", ngonNgu === "en" ? d.tenEn : d.ten, d.lat, d.lon, null);
   });
   noiCoSan.concat(NOI_DA_TIM.filter(function (n) { return n.maNuoc === ma; })).forEach(function (noi) {
-    datGhim(hop, khung, phongTo, "ghim", noi.hinh + " " + tenNoi(noi), noi.lat, noi.lon, function () { moNoi(noi); });
+    datGhim(hop, khung, phongTo, "ghim", noi.hinh + " " + tenNoi(noi), noi.lat, noi.lon, function () { diToiNoi(noi); });
   });
   // Thẻ thành phố có sẵn bên dưới bản đồ
   const boThe = document.getElementById("bo-the-qg");
@@ -2053,13 +2075,16 @@ function moQuocGia(ma) {
     the.type = "button";
     the.style.background = noi.mau;
     the.innerHTML = '<span class="hinh">' + noi.hinh + '</span><span class="ten">' + tenNoi(noi) + '</span>';
-    the.addEventListener("click", function () { moNoi(noi); });
+    the.addEventListener("click", function () { diToiNoi(noi); });
     boThe.appendChild(the);
   });
   document.getElementById("ket-qua-tim").innerHTML = "";
   document.getElementById("o-tim").value = "";
 }
-document.getElementById("nut-ban-do").addEventListener("click", function () { mucPhongTo = 0; tuQuay = true; moBanDoTheGioi(); });
+document.getElementById("nut-ban-do").addEventListener("click", function () {
+  datCheDoQuaCau("man-chon-noi", "bd_goi_y", null); // khám phá bình thường
+  mucPhongTo = 0; tuQuay = true; moBanDoTheGioi();
+});
 
 // ---------- GÕ TÊN THÀNH PHỐ ĐỂ TÌM ----------
 // NASA không có công cụ đổi tên thành phố ra toạ độ, nên dùng Open-Meteo Geocoding
@@ -2106,7 +2131,7 @@ document.getElementById("tim-tp").addEventListener("submit", async function (e) 
         noi = { id: id, ten: r.name, tenEn: r.name, hinh: "📍", mau: "#e6f7e8", lat: r.latitude, lon: r.longitude, maNuoc: ma };
         NOI_DA_TIM.push(noi);
       }
-      moNoi(noi);
+      diToiNoi(noi);
     });
     ketQua.appendChild(nut);
   });
@@ -2631,6 +2656,25 @@ document.getElementById("nut-dung").addEventListener("click", dungAmThanh);
 
 // ---------- DANH SÁCH MINIGAME ----------
 // Mỗi game là 1 ô (6 trò, trò 6 là trò cuối). man = màn đầu tiên của game đó
+// ---------- TÍCH SAO (giống game trước) ----------
+// Sao của mọi trò cộng dồn, lưu trên máy. Đủ 3 / 10 / 20 sao thì có danh hiệu.
+let tongSao = 0;
+try { tongSao = parseInt(localStorage.getItem("gc-melon-sao"), 10) || 0; } catch (e) { /* không lưu được cũng không sao */ }
+function danhHieu() {
+  const dh = T("danh_hieu").find(function (d) { return tongSao >= d[0]; });
+  return dh ? " · " + dh[1] : "";
+}
+function veTongSao() {
+  document.getElementById("mg-tong-sao").textContent = T("sao_tong", { n: tongSao }) + danhHieu();
+}
+// Cộng sao khi xong 1 trò, trả về dòng chữ để hiện dưới hàng sao
+function congSao(so) {
+  tongSao += so;
+  try { localStorage.setItem("gc-melon-sao", String(tongSao)); } catch (e) { /* không lưu được cũng không sao */ }
+  veTongSao();
+  return '<p class="tong-sao">' + T("sao_cong", { cong: so, n: tongSao }) + danhHieu() + "</p>";
+}
+
 const DS_MINIGAME = [
   { hinh: "🚨", ten: "mg_tro1_ten", mo_ta: "mg_tro1_mo_ta", man: "man-minigame" },
   { hinh: "🎨", ten: "mg_tro2_ten", mo_ta: "mg_tro2_mo_ta", man: "man-vt-chon" },
@@ -3030,7 +3074,7 @@ function chonND(n) {
   ket.hidden = false;
   if (ndLuot < ND_SO_LUOT) { document.getElementById("nd-tiep").hidden = false; return; }
   document.getElementById("nd-diem").innerHTML =
-    '<p class="tt-sao">' + "⭐".repeat(ndDung) + "☆".repeat(ND_SO_LUOT - ndDung) + "</p>" +
+    '<p class="tt-sao">' + "⭐".repeat(ndDung) + "☆".repeat(ND_SO_LUOT - ndDung) + "</p>" + congSao(ndDung) +
     "<p><b>" + T("nd_tong", { dung: ndDung, tong: ND_SO_LUOT }) + "</b></p><p>" +
     T(ndDung === ND_SO_LUOT ? "nd_khen_5" : ndDung >= 3 ? "nd_khen_3" : "nd_khen_0") + "</p>";
   document.getElementById("nd-lai").hidden = false;
@@ -3125,7 +3169,7 @@ function chonAB(loai) {
   ket.hidden = false;
   if (abLuot < AB_SO_LUOT) { document.getElementById("ab-tiep").hidden = false; return; }
   document.getElementById("ab-diem").innerHTML =
-    '<p class="tt-sao">' + "⭐".repeat(abDung) + "☆".repeat(AB_SO_LUOT - abDung) + "</p>" +
+    '<p class="tt-sao">' + "⭐".repeat(abDung) + "☆".repeat(AB_SO_LUOT - abDung) + "</p>" + congSao(abDung) +
     "<p><b>" + T("ab_tong", { dung: abDung, tong: AB_SO_LUOT }) + "</b></p><p>" +
     T(abDung === AB_SO_LUOT ? "ab_khen_6" : abDung >= 4 ? "ab_khen_4" : "ab_khen_0") + "</p>";
   document.getElementById("ab-lai").hidden = false;
@@ -3250,7 +3294,7 @@ function chonAD(k) {
   veBieuDoAD();
   if (adLuot < AD_SO_LUOT) { document.getElementById("ad-tiep").hidden = false; return; }
   document.getElementById("ad-diem").innerHTML =
-    '<p class="tt-sao">' + "⭐".repeat(adDung) + "☆".repeat(AD_SO_LUOT - adDung) + "</p>" +
+    '<p class="tt-sao">' + "⭐".repeat(adDung) + "☆".repeat(AD_SO_LUOT - adDung) + "</p>" + congSao(adDung) +
     "<p><b>" + T("ad_tong", { dung: adDung, tong: AD_SO_LUOT }) + "</b></p><p>" +
     T(adDung === AD_SO_LUOT ? "ad_khen_4" : adDung >= 2 ? "ad_khen_2" : "ad_khen_0") + "</p>";
   document.getElementById("ad-lai").hidden = false;
@@ -3376,7 +3420,7 @@ function chonDT(m) {
   if (dtLuot < DT_SO_LUOT) { document.getElementById("dt-tiep").hidden = false; return; }
   // Hết 5 lượt: chấm sao
   document.getElementById("dt-diem").innerHTML =
-    '<p class="tt-sao">' + "⭐".repeat(dtDung) + "☆".repeat(DT_SO_LUOT - dtDung) + "</p>" +
+    '<p class="tt-sao">' + "⭐".repeat(dtDung) + "☆".repeat(DT_SO_LUOT - dtDung) + "</p>" + congSao(dtDung) +
     "<p><b>" + T("dt_tong", { dung: dtDung, tong: DT_SO_LUOT }) + "</b></p><p>" +
     T(dtDung === DT_SO_LUOT ? "dt_khen_5" : dtDung >= 3 ? "dt_khen_3" : "dt_khen_0") + "</p>";
   document.getElementById("dt-lai").hidden = false;
@@ -3521,15 +3565,15 @@ let vtNoi = null, vtChon = {}, vtSo = null;
 function veDsNoiVT() {
   const ds = document.getElementById("vt-ds-noi");
   ds.innerHTML = "";
-  noiVT().forEach(function (noi) {
-    const o = document.createElement("button");
-    o.type = "button";
-    o.className = "tt-o";
-    o.style.background = noi.mau;
-    o.innerHTML = '<span class="tt-hinh">' + noi.hinh + '</span><span class="tt-ten">' + tenNoi(noi) + "</span>";
-    o.addEventListener("click", function () { batDauVe(noi); });
-    ds.appendChild(o);
+  const o = document.createElement("button");
+  o.type = "button";
+  o.className = "tt-o vt-qua-cau";
+  o.innerHTML = '<span class="tt-hinh">🌍</span><span class="tt-ten">' + T("vt_qc_nut") + "</span>";
+  o.addEventListener("click", function () {
+    datCheDoQuaCau("man-vt-chon", "vt_qc_goi_y", batDauVe);
+    mucPhongTo = 0; tuQuay = true; moBanDoTheGioi();
   });
+  ds.appendChild(o);
 }
 function batDauVe(noi) {
   vtNoi = noi;
@@ -3609,7 +3653,7 @@ document.getElementById("vt-chot").addEventListener("click", async function () {
       "<span>" + giaTriNasa(l.ma) + "</span><span>" + (trung ? "✅" : "❌") + "</span></div>";
   }).join("");
   document.getElementById("vt-diem").innerHTML =
-    '<p class="tt-sao">' + "⭐".repeat(dung) + "☆".repeat(4 - dung) + "</p>" +
+    '<p class="tt-sao">' + "⭐".repeat(dung) + "☆".repeat(4 - dung) + "</p>" + congSao(dung) +
     "<p><b>" + T("vt_dung", { dung: dung }) + "</b></p><p>" + T(dung === 4 ? "vt_khen_4" : dung >= 2 ? "vt_khen_2" : "vt_khen_0") + "</p>";
 });
 document.getElementById("vt-noi-khac").addEventListener("click", function () { moMan("man-vt-chon"); });
@@ -3760,7 +3804,7 @@ function veKetQuaTT(nuoc, soLieu) {
   if (ttThuTu[cuoi] === thuTuNasa[cuoi]) loi.push(T("tt_dung_it_xanh", { ten: tenTp(nuoc.tp[thuTuNasa[cuoi]]) }));
   if (!loi.length) loi.push(T("tt_co_gang"));
   document.getElementById("tt-diem").innerHTML =
-    '<p class="tt-sao">' + "⭐".repeat(dungViTri) + "☆".repeat(nuoc.tp.length - dungViTri) + "</p>" +
+    '<p class="tt-sao">' + "⭐".repeat(dungViTri) + "☆".repeat(nuoc.tp.length - dungViTri) + "</p>" + congSao(dungViTri) +
     "<p><b>" + T("tt_dung_vi_tri", { dung: dungViTri, tong: nuoc.tp.length }) + "</b></p>" +
     loi.map(function (l) { return "<p>" + l + "</p>"; }).join("");
   const lonNhat = Math.max(0.01, soLieu[thuTuNasa[0]].ndvi);
@@ -4015,6 +4059,7 @@ function apDungNgonNgu() {
   veHuongDan();
   veDsNuocTT();
   veDsMinigame();
+  veTongSao();
   veWelcome();
   veDsNoiTG();
   veDsNoiTH();
